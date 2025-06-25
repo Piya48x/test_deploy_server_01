@@ -6,16 +6,13 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [editId, setEditId] = useState(null);
 
-  const API_URL = 'https://test-deploy-server-02.onrender.com/api/messages';
+  // ✅ ใช้ URL ของ backend จริงที่ Render
+  const BASE_URL = 'https://test-deploy-server-02.onrender.com';
 
   const fetchMessages = async () => {
-    try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-      setMessages(data);
-    } catch (err) {
-      console.error('Error fetching messages:', err);
-    }
+    const res = await fetch(`${BASE_URL}/api/messages`);
+    const data = await res.json();
+    setMessages(data);
   };
 
   useEffect(() => {
@@ -24,27 +21,23 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (editId) {
-        await fetch(`${API_URL}/${editId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, message }),
-        });
-      } else {
-        await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, message }),
-        });
-      }
-      setName('');
-      setMessage('');
-      setEditId(null);
-      fetchMessages();
-    } catch (err) {
-      console.error('Error submitting message:', err);
+    if (editId) {
+      await fetch(`${BASE_URL}/api/messages/${editId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, message }),
+      });
+    } else {
+      await fetch(`${BASE_URL}/api/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, message }),
+      });
     }
+    setName('');
+    setMessage('');
+    setEditId(null);
+    fetchMessages();
   };
 
   const handleEdit = (msg) => {
@@ -54,14 +47,10 @@ function App() {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await fetch(`${API_URL}/${id}`, {
-        method: 'DELETE',
-      });
-      fetchMessages();
-    } catch (err) {
-      console.error('Error deleting message:', err);
-    }
+    await fetch(`${BASE_URL}/api/messages/${id}`, {
+      method: 'DELETE',
+    });
+    fetchMessages();
   };
 
   return (
